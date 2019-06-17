@@ -1,6 +1,6 @@
 In this docker-compose (use `docker-compose up` for running) placed 3 services.
 
-- API (provides api for access to CRUD for cars and to driver's penalties)
+- API (provides api for access to CRUD for cars and to driver's penalties, storing in the MongoDB collections)
 - Dumper (dumps to drivers collection incoming tracking messages from RabbitMQ)
 - Simulator (generates tracking messages for existing cars in the RabbitMQ)
 
