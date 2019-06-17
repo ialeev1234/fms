@@ -1,0 +1,83 @@
+version: "3"
+
+services:
+  web:
+    restart: always
+    build:
+      dockerfile: dockerfile
+      context: .
+    ports:
+      - "80:5000"
+    links:
+      - "mongo:mongo"
+    depends_on:
+      - "mongo"
+    command: sh -c "python fms_api.py"
+    networks:
+      - localnet
+
+  simulator:
+    restart: always
+    build:
+      dockerfile: dockerfile
+      context: .
+    links:
+      - "mongo:mongo"
+      - "rabbitmq:rabbitmq"
+    depends_on:
+      - "mongo"
+      - "rabbitmq"
+    command: sh -c "python car_simulator.py"
+    networks:
+      - localnet
+
+  dumper:
+    restart: always
+    build:
+      dockerfile: dockerfile
+      context: .
+    links:
+      - "mongo:mongo"
+      - "rabbitmq:rabbitmq"
+    depends_on:
+      - "mongo"
+      - "rabbitmq"
+    command: sh -c "python penalties_dumper.py"
+    networks:
+      - localnet
+
+  mongo:
+    image: "mongo:4.0.10"
+    hostname: "mongo"
+    volumes:
+      - "mongo:/data/db"
+    ports:
+      - "27017:27017"
+    expose:
+      - "27017"
+    networks:
+      - localnet
+
+  rabbitmq:
+    image: rabbitmq:3.7
+    hostname: "rabbitmq"
+    volumes:
+      - "rabbitmqdata:/var/lib/rabbitmq"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    expose:
+      - "15672"
+      - "5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - localnet
+
+volumes:
+  rabbitmqdata:
+  mongo:
+
+networks:
+  localnet:
